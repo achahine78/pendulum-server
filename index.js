@@ -3,6 +3,7 @@ const cors = require("cors");
 const pendulums = require("./constants/pendulums");
 const PendulumSimulation = require("./modules/simulation/simulation");
 const { createMqttClient } = require("./modules/mqtt/mqtt");
+const { SimulationStates } = require("./constants/simulation");
 
 const createServer = (pendulum) => {
   const app = express();
