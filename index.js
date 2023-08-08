@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const pendulums = require("./constants/pendulums");
 const PendulumSimulation = require("./modules/simulation/simulation");
+const { createMqttClient } = require("./modules/mqtt/mqtt");
 
 const createServer = (pendulum) => {
   const app = express();
@@ -10,6 +11,8 @@ const createServer = (pendulum) => {
   const port = 3000 + pendulum.id;
 
   let simulation = null;
+
+  const mqttClient = createMqttClient(pendulum);
 
   app.get("/position", (req, res) => {
     res.status(200);
@@ -35,7 +38,8 @@ const createServer = (pendulum) => {
       0,
       bob,
       pendulumLength,
-      origin
+      origin,
+      mqttClient
     );
     simulation.start();
     return res.sendStatus(200);

@@ -5,4 +5,4 @@ const getDistance = (a, b) => {
   return Math.sqrt(x * x + y * y);
 };
 
-module.exports = getDistance;
+module.exports = { getDistance };
