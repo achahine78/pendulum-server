@@ -33,16 +33,25 @@ const createServer = (pendulum) => {
         mqttClient
       );
       simulation.start();
-      return res.sendStatus(200);
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} has started`,
+      });
     }
 
     if (simulation.simulationState === SimulationStates.RUNNING) {
-      return res.sendStatus(200);
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} is already running`,
+      });
     }
 
     if (simulation.simulationState === SimulationStates.STOPPED) {
       simulation.start();
-      return res.sendStatus(200);
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} has started`,
+      });
     }
   });
 
@@ -63,11 +72,17 @@ const createServer = (pendulum) => {
 
   app.post("/pause", (req, res) => {
     if (!simulation) {
-      return res.sendStatus(200);
+      res.status(200);
+      return res.json({
+        message: `No simulation for pendulum ${pendulum.id} is running.`,
+      });
     }
 
     simulation.stop({ isCollision: false });
-    return res.sendStatus(200);
+    res.status(200);
+    return res.json({
+      message: `Simulation for pendulum ${pendulum.id} has been paused.`,
+    });
   });
 
   app.post("/reset", (req, res) => {
