@@ -79,27 +79,31 @@ class PendulumSimulation {
   }
 
   simulationStep = async () => {
-    const pendulumPositions = await this.getPendulumPositions();
-    const pendulumDistances = pendulumPositions.map((pos) =>
-      getDistance(this.bob, pos.bob)
-    );
-    const doesCollisionExist = pendulumDistances.some(
-      (distance) => distance < DISTANCE_THRESHOLD
-    );
-
-    if (doesCollisionExist) {
-      this.sendMessageAcrossMqttChannel("/vention/pendulums", {
-        senderId: this.id,
-        message: "stop",
-      });
-    } else {
-      let force = GRAVITY_CONSTANT * Math.sin(this.angle);
-      this.angularAcceleration = (-1 * force) / this.pendulumLength;
-      this.angularVelocity += this.angularAcceleration;
-      this.angle += this.angularVelocity;
-
-      this.bob.x = this.pendulumLength * Math.sin(this.angle) + this.origin.x;
-      this.bob.y = this.pendulumLength * Math.cos(this.angle) + this.origin.y;
+    try {
+      const pendulumPositions = await this.getPendulumPositions();
+      const pendulumDistances = pendulumPositions.map((pos) =>
+        getDistance(this.bob, pos.bob)
+      );
+      const doesCollisionExist = pendulumDistances.some(
+        (distance) => distance < DISTANCE_THRESHOLD
+      );
+  
+      if (doesCollisionExist) {
+        this.sendMessageAcrossMqttChannel("/vention/pendulums", {
+          senderId: this.id,
+          message: "stop",
+        });
+      } else {
+        let force = GRAVITY_CONSTANT * Math.sin(this.angle);
+        this.angularAcceleration = (-1 * force) / this.pendulumLength;
+        this.angularVelocity += this.angularAcceleration;
+        this.angle += this.angularVelocity;
+  
+        this.bob.x = this.pendulumLength * Math.sin(this.angle) + this.origin.x;
+        this.bob.y = this.pendulumLength * Math.cos(this.angle) + this.origin.y;
+      }
+    } catch (e) {
+      // console.log(e)
     }
   };
 
