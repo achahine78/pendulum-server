@@ -4,6 +4,10 @@ const pendulums = require("./constants/pendulums");
 const PendulumSimulation = require("./modules/simulation/simulation");
 const { createMqttClient } = require("./modules/mqtt/mqtt");
 const { SimulationStates } = require("./constants/simulation");
+const { 
+  v1: uuidv1,
+  v4: uuidv4,
+} = require('uuid');
 
 const createServer = (pendulum) => {
   const app = express();
@@ -12,7 +16,6 @@ const createServer = (pendulum) => {
   const port = 3000 + pendulum.id;
 
   let simulation = null;
-
   const mqttClient = createMqttClient(pendulum);
 
   app.post("/start", (req, res) => {
@@ -23,6 +26,7 @@ const createServer = (pendulum) => {
       const origin = req.body.origin;
 
       simulation = new PendulumSimulation(
+        uuidv4(),
         pendulum.id,
         angle,
         0,
@@ -108,7 +112,8 @@ const createServer = (pendulum) => {
 
   app.post("/reset", (req, res) => {
     if (simulation) {
-      simulation.stop({ isCollision: false });
+      // simulation.stop({ isCollision: false });
+      simulation.reset();
       simulation = null;
     }
 
