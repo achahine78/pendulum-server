@@ -11,7 +11,8 @@ To run this node.js app, you need to create an env.js file in the root directory
 **URL** : `/start`
 **Method** : `POST`
 **Body**: 
-```{
+```
+{
   angle: 0,
   bob:{x: 0, y: 200},
   color: "red",
