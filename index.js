@@ -39,6 +39,13 @@ const createServer = (pendulum) => {
       });
     }
 
+    if (simulation.simulationState === SimulationStates.RESTARTING) {
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} is restarting due to collision`,
+      });
+    }
+
     if (simulation.simulationState === SimulationStates.RUNNING) {
       res.status(200);
       return res.json({
@@ -75,6 +82,20 @@ const createServer = (pendulum) => {
       res.status(200);
       return res.json({
         message: `No simulation for pendulum ${pendulum.id} is running.`,
+      });
+    }
+
+    if (simulation.simulationState === SimulationStates.STOPPED) {
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} is already paused.`,
+      });
+    }
+
+    if (simulation.simulationState === SimulationStates.RESTARTING) {
+      res.status(200);
+      return res.json({
+        message: `Simulation for pendulum ${pendulum.id} is restarting due to collision`,
       });
     }
 
