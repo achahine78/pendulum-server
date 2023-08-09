@@ -108,7 +108,7 @@ const createServer = (pendulum) => {
 
   app.post("/reset", (req, res) => {
     if (simulation) {
-      simulation.stop({ isCollision: false });
+      simulation.kill();
       simulation = null;
     }
 

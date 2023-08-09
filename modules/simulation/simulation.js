@@ -4,7 +4,7 @@ const {
   DISTANCE_THRESHOLD,
 } = require("../../constants/simulation");
 
-const { getDistance } = require('../../utils/getDistance');
+const { getDistance } = require("../../utils/getDistance");
 
 const pendulums = require("../../constants/pendulums");
 const axios = require("axios");
@@ -58,24 +58,7 @@ class PendulumSimulation {
 
     this.mqttClient = mqttClient;
 
-    this.mqttClient.on("message", (topic, payload) => {
-      const stringifiedPayload = payload.toString();
-      const parsedPayload = JSON.parse(stringifiedPayload);
-      const { message } = parsedPayload;
-      if (message === "stop") {
-        if (this.simulationState === SimulationStates.RUNNING) {
-          this.stop({ isCollision: true });
-        }
-      }
-
-      if (message === "restart") {
-        if (this.simulationState.RUNNING) return;
-        this.restartCount++;
-        if (this.restartCount === 5) {
-          this.restart();
-        }
-      }
-    });
+    this.mqttClient.on("message", this.mqttClientEventHandler);
   }
 
   simulationStep = async () => {
@@ -87,7 +70,7 @@ class PendulumSimulation {
       const doesCollisionExist = pendulumDistances.some(
         (distance) => distance < DISTANCE_THRESHOLD
       );
-  
+
       if (doesCollisionExist) {
         this.sendMessageAcrossMqttChannel("/vention/pendulums", {
           senderId: this.id,
@@ -98,7 +81,7 @@ class PendulumSimulation {
         this.angularAcceleration = (-1 * force) / this.pendulumLength;
         this.angularVelocity += this.angularAcceleration;
         this.angle += this.angularVelocity;
-  
+
         this.bob.x = this.pendulumLength * Math.sin(this.angle) + this.origin.x;
         this.bob.y = this.pendulumLength * Math.cos(this.angle) + this.origin.y;
       }
@@ -154,9 +137,11 @@ class PendulumSimulation {
     );
   }
 
-  clearIntervalAndTimeout () {
+  clearIntervalAndTimeout() {
     clearInterval(this.interval);
     clearTimeout(this.timeout);
+    this.interval = null;
+    this.timeout = null;
   }
 
   async getPendulumPositions() {
@@ -167,6 +152,30 @@ class PendulumSimulation {
     const pendulumPositions = responses.map((response) => response.data);
     return pendulumPositions.filter((pos) => pos.id !== this.id);
   }
+
+  kill() {
+    this.clearIntervalAndTimeout();
+    this.mqttClient.removeListener("message", this.mqttClientEventHandler);
+  }
+
+  mqttClientEventHandler = (topic, payload) => {
+    const stringifiedPayload = payload.toString();
+    const parsedPayload = JSON.parse(stringifiedPayload);
+    const { message } = parsedPayload;
+    if (message === "stop") {
+      if (this.simulationState === SimulationStates.RUNNING) {
+        this.stop({ isCollision: true });
+      }
+    }
+
+    if (message === "restart") {
+      if (this.simulationState.RUNNING) return;
+      this.restartCount++;
+      if (this.restartCount === 5) {
+        this.restart();
+      }
+    }
+  };
 }
 
 module.exports = PendulumSimulation;
