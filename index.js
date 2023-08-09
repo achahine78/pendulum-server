@@ -64,7 +64,10 @@ const createServer = (pendulum) => {
 
   app.get("/position", (req, res) => {
     if (!simulation) {
-      return res.sendStatus(404);
+      res.status(404);
+      res.json({
+        message: `No simulation currently running for ${pendulum.id}`
+      })
     }
 
     res.status(200);
@@ -81,14 +84,14 @@ const createServer = (pendulum) => {
     if (!simulation) {
       res.status(200);
       return res.json({
-        message: `No simulation for pendulum ${pendulum.id} is running.`,
+        message: `No simulation for pendulum ${pendulum.id} is running`,
       });
     }
 
     if (simulation.simulationState === SimulationStates.STOPPED) {
       res.status(200);
       return res.json({
-        message: `Simulation for pendulum ${pendulum.id} is already paused.`,
+        message: `Simulation for pendulum ${pendulum.id} is already paused`,
       });
     }
 
@@ -102,7 +105,7 @@ const createServer = (pendulum) => {
     simulation.stop({ isCollision: false });
     res.status(200);
     return res.json({
-      message: `Simulation for pendulum ${pendulum.id} has been paused.`,
+      message: `Simulation for pendulum ${pendulum.id} has been paused`,
     });
   });
 
@@ -110,6 +113,10 @@ const createServer = (pendulum) => {
     if (simulation) {
       simulation.kill();
       simulation = null;
+      res.status(200);
+      return res.json({
+        message: `Simulation reset for pendulum ${pendulum.id}`
+      })
     }
 
     return res.sendStatus(200);
