@@ -22,13 +22,19 @@ To run this node.js app, you need to create an env.js file in the root directory
 }
 ```
 
+## Position
+
 **URL** : `/position`
 **Method** : `GET`
 returns current position of pendulum
 
+## Pause
+
 **URL** : `/pause`
 **Method** : `POST`
 pauses the pendulum simulation
+
+## Reset
 
 **URL** : `/reset`
 **Method** : `POST`
