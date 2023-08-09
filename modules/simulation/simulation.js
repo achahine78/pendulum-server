@@ -17,8 +17,10 @@ class PendulumSimulation {
   bob;
   pendulumLength;
   origin;
-  interval;
   mqttClient;
+
+  interval;
+  timeout;
 
   initialConditions;
 
@@ -103,16 +105,16 @@ class PendulumSimulation {
 
   start() {
     this.simulationState = SimulationStates.RUNNING;
-    clearInterval(this.interval);
+    this.clearIntervalAndTimeout();
     this.interval = setInterval(this.simulationStep, 100);
   }
 
   stop({ isCollision }) {
-    clearInterval(this.interval);
+    this.clearIntervalAndTimeout();
     this.simulationState = SimulationStates.STOPPED;
     if (isCollision) {
       this.simulationState = SimulationStates.RESTARTING;
-      setTimeout(() => {
+      this.timeout = setTimeout(() => {
         this.sendMessageAcrossMqttChannel("/vention/pendulums", {
           senderId: this.id,
           message: "restart",
@@ -122,6 +124,7 @@ class PendulumSimulation {
   }
 
   restart() {
+    this.clearIntervalAndTimeout();
     this.angle = this.initialConditions.angle;
     this.angularVelocity = this.initialConditions.angularVelocity;
     this.angularAcceleration = this.initialConditions.angularAcceleration;
@@ -145,6 +148,11 @@ class PendulumSimulation {
         }
       }
     );
+  }
+
+  clearIntervalAndTimeout () {
+    clearInterval(this.interval);
+    clearTimeout(this.timeout);
   }
 
   async getPendulumPositions() {
